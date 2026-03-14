@@ -14,12 +14,12 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("TickerBooking")
+                        .title("Bun Nuoc Co Le")
                         .version("1.0.0")
-                        .description("API for TickerBooking")
+                        .description("API for BunNuocCoLe")
                         .contact(new Contact()
                                 .name("Lê Minh Tân")
-                                .url("https://github.com/letan-165/Ticket-Booking-OPT"))
+                                .url("https://github.com/letan-165/family-main-project"))
                         .license(new License()
                                 .name("MIT License")
                                 .url("https://opensource.org/licenses/MIT")));

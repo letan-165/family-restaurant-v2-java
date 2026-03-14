@@ -1,5 +1,5 @@
 package family.main.project.common.enums;
 
-public enum UserRole {
-    CUSTOMER, ADMIN
+public enum ItemType {
+    MAIN, SIDE, DRINK
 }

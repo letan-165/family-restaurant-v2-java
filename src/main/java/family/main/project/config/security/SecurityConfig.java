@@ -12,9 +12,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +31,9 @@ public class SecurityConfig {
 
     @NonFinal
     @Value("${key.jwt.value}")
-    String key;
+    String KEY;
 
-    String[] endpoints = {"/auth/public/**", "/keycloak/auth/public/guest/**", "/events/public/guest/**"};
+    String[] endpoints = {"/**"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,21 +50,21 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    JwtDecoder jwtDecoder(){
+        SecretKeySpec secretKeySpec = new SecretKeySpec(KEY.getBytes(),"HS256");
+        return NimbusJwtDecoder
+                .withSecretKey(secretKeySpec)
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
+    }
+
     JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            List<GrantedAuthority> authorities = new ArrayList<>();
-
-            Map<String, Object> realmAccess = jwt.getClaim("realm_access");
-            if (realmAccess != null && realmAccess.containsKey("roles")) {
-                List<String> roles = (List<String>) realmAccess.get("roles");
-                if (roles != null) {
-                    roles.forEach(r -> authorities.add(new SimpleGrantedAuthority("ROLE_" + r)));
-                }
-            }
-
-            return authorities;
-        });
+        converter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return converter;
     }
 
