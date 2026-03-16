@@ -5,13 +5,13 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name = "profiles")
+@Table(name = "user_profile")
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Profile {
+public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;

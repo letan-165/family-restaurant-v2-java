@@ -14,6 +14,8 @@ public enum ErrorCode {
     USER_EXISTS(1002, "User existed", HttpStatus.BAD_REQUEST),
     USER_INVALID(1003, "User does not match token", HttpStatus.BAD_REQUEST),
     PROFILE_NO_EXISTS(1004, "User not found", HttpStatus.BAD_REQUEST),
+    ITEM_NO_EXISTS(1005, "Item not found", HttpStatus.BAD_REQUEST),
+    ORDER_NO_EXISTS(1006, "Order not found", HttpStatus.BAD_REQUEST),
 
     // ===== AUTH (2001 – 2999) =====
     UNAUTHORIZED(2001, "You don't have permission", HttpStatus.FORBIDDEN),
@@ -32,6 +34,9 @@ public enum ErrorCode {
     ITEM_STATUS_INVALID(3005, "Item status invalid (ACTIVE, OUT, PAUSED)", HttpStatus.BAD_REQUEST),
     ITEM_TYPE_INVALID(3006, "Item type invalid (MAIN, SIDE, DRINK)", HttpStatus.BAD_REQUEST),
     ORDER_STATUS_INVALID(3007, "Order status invalid ( PENDING, CANCELLED, CONFIRMED, COMPLETED)", HttpStatus.BAD_REQUEST),
+    ORDER_PENDING_NO_UPDATE(3008, "Pending can only be initialized.", HttpStatus.BAD_REQUEST),
+    ORDER_NO_PENDING(3009, "Status order not PENDING", HttpStatus.BAD_REQUEST),
+    ORDER_NO_CONFIRMED(3010, "Status order not CONFIRMED", HttpStatus.BAD_REQUEST),
 
     // === VALIDATION (3101 – 3999) ===
     EMAIL_INVALID(3101, "Email invalid", HttpStatus.BAD_REQUEST),

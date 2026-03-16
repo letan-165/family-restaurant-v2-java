@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class ItemOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    String id;
+    Long id;
 
     @Column(name = "item_id")
     Long itemId;

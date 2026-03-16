@@ -25,4 +25,7 @@ public class Order {
 
     @Column(name = "time_booking", nullable = false)
     Date timeBooking;
+
+    @Column(name = "time_completed", nullable = false)
+    Date timeCompleted;
 }

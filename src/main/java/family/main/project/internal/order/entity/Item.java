@@ -24,6 +24,7 @@ public class Item {
     @Enumerated(EnumType.STRING)
     ItemType type;
 
+    int sold;
     Integer price;
     String picture;
     String description;

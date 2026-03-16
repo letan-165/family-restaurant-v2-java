@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class UserOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    String id;
+    Long id;
 
     @Column(name = "user_id")
     String userId;

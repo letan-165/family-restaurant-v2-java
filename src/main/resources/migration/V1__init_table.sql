@@ -8,7 +8,7 @@ CREATE TABLE users (
     role VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE profiles (
+CREATE TABLE user_profile (
     id VARCHAR(36) PRIMARY KEY,
     user_id VARCHAR(36) NOT NULL UNIQUE,
     full_name VARCHAR(50),
@@ -24,6 +24,7 @@ CREATE TABLE items (
     name VARCHAR(50) NOT NULL,
     type VARCHAR(20) NOT NULL,
     status VARCHAR(20) NOT NULL,
+    sold INT NOT NULL,
     price INT NOT NULL,
     picture VARCHAR(255),
     description VARCHAR(255)

@@ -1,7 +1,9 @@
 package family.main.project.internal.order.service;
 
 import family.main.project.common.enums.OrderStatus;
-import family.main.project.internal.order.dto.request.CreateOrderRequest;
+import family.main.project.common.exception.AppException;
+import family.main.project.common.exception.ErrorCode;
+import family.main.project.internal.order.dto.request.OrderCreateRequest;
 import family.main.project.internal.order.dto.request.OrderItemRequest;
 import family.main.project.internal.order.entity.*;
 import family.main.project.internal.order.repository.*;
@@ -12,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class OrderService {
     UserOrderRepository userOrderRepository;
 
     @Transactional
-    public Long createOrder(CreateOrderRequest request) {
+    public Long createOrder(OrderCreateRequest request) {
         Order order = Order.builder()
                 .status(OrderStatus.PENDING)
                 .note(request.getNote())
@@ -39,12 +40,11 @@ public class OrderService {
 
         for (OrderItemRequest itemReq : request.getItems()) {
             Item item = itemRepository.findById(itemReq.getItemId())
-                    .orElseThrow(() -> new RuntimeException("Item not found"));
+                    .orElseThrow(() -> new AppException(ErrorCode.ITEM_NO_EXISTS));
 
             int price = item.getPrice() * itemReq.getQuantity();
 
             ItemOrder itemOrder = ItemOrder.builder()
-                    .id(UUID.randomUUID().toString())
                     .orderId(order.getId())
                     .itemId(itemReq.getItemId())
                     .quantity(itemReq.getQuantity())
@@ -60,7 +60,6 @@ public class OrderService {
         orderRepository.save(order);
 
         UserOrder userOrder = UserOrder.builder()
-                .id(UUID.randomUUID().toString())
                 .userId(request.getUserId())
                 .orderId(order.getId().toString())
                 .receiverName(request.getReceiverName())
@@ -71,5 +70,29 @@ public class OrderService {
         userOrderRepository.save(userOrder);
 
         return order.getId();
+    }
+
+    public Order updateStatus(Long orderId, OrderStatus status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NO_EXISTS));
+
+        OrderStatus currentStatus = order.getStatus();
+
+        switch (status) {
+            case PENDING -> throw new AppException(ErrorCode.ORDER_PENDING_NO_UPDATE);
+
+            case CONFIRMED, CANCELLED -> {
+                if (currentStatus != OrderStatus.PENDING)
+                    throw new AppException(ErrorCode.ORDER_NO_PENDING);
+            }
+
+            case COMPLETED -> {
+                if (currentStatus != OrderStatus.CONFIRMED)
+                    throw new AppException(ErrorCode.ORDER_NO_CONFIRMED);
+            }
+        }
+
+        order.setStatus(status);
+        return orderRepository.save(order);
     }
 }

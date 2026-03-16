@@ -5,14 +5,13 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import family.main.project.common.enums.UserRole;
 import family.main.project.common.exception.AppException;
 import family.main.project.common.exception.ErrorCode;
 import family.main.project.internal.user.dto.request.LoginRequest;
 import family.main.project.internal.user.dto.request.TokenRequest;
 import family.main.project.internal.user.dto.request.UserSignUpRequest;
 import family.main.project.internal.user.dto.response.AuthResponse;
-import family.main.project.internal.user.entity.Profile;
+import family.main.project.internal.user.entity.UserProfile;
 import family.main.project.internal.user.entity.User;
 import family.main.project.internal.user.repository.ProfileRepository;
 import family.main.project.internal.user.repository.UserRepository;
@@ -57,7 +56,7 @@ public class AuthService {
         User user = User.builder()
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
-        Profile profile = Profile.builder().build();
+        UserProfile profile = UserProfile.builder().build();
 
         return AuthResponse.builder()
                 .userID(user.getId())
@@ -75,7 +74,7 @@ public class AuthService {
             throw new AppException(ErrorCode.PASSWORD_INVALID);
         String userId = user.getId();
 
-        Profile profile = profileRepository.findByUserId(userId)
+        UserProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(()->new AppException(ErrorCode.PROFILE_NO_EXISTS));
 
         return AuthResponse.builder()
