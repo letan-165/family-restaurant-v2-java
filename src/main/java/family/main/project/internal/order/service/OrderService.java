@@ -5,11 +5,13 @@ import family.main.project.common.exception.AppException;
 import family.main.project.common.exception.ErrorCode;
 import family.main.project.internal.order.dto.request.OrderCreateRequest;
 import family.main.project.internal.order.dto.request.OrderItemRequest;
+import family.main.project.internal.order.dto.response.OrderUpdateStatusResponse;
 import family.main.project.internal.order.entity.*;
 import family.main.project.internal.order.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +27,9 @@ public class OrderService {
     ItemOrderRepository itemOrderRepository;
     UserOrderRepository userOrderRepository;
 
+    @CacheEvict(value = "user-order", key = "#result.userId")
     @Transactional
-    public Long createOrder(String userId, OrderCreateRequest request) {
+    public UserOrder createOrder(String userId, OrderCreateRequest request) {
         Order order = Order.builder()
                 .status(OrderStatus.PENDING)
                 .note(request.getNote())
@@ -52,7 +55,6 @@ public class OrderService {
                     .build();
 
             itemOrderRepository.save(itemOrder);
-
             total += price;
         }
 
@@ -67,16 +69,18 @@ public class OrderService {
                 .address(request.getAddress())
                 .build();
 
-        userOrderRepository.save(userOrder);
-
-        return order.getId();
+        return userOrderRepository.save(userOrder);
     }
 
-    public Order updateStatus(Long orderId, OrderStatus status) {
+    @CacheEvict(value = "user-order", key = "#result.userId")
+    public OrderUpdateStatusResponse updateStatus(Long orderId, OrderStatus status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NO_EXISTS));
 
         OrderStatus currentStatus = order.getStatus();
+
+        if (currentStatus == OrderStatus.COMPLETED)
+            throw new AppException(ErrorCode.ORDER_COMPLETED);
 
         switch (status) {
             case PENDING -> throw new AppException(ErrorCode.ORDER_PENDING_NO_UPDATE);
@@ -89,10 +93,19 @@ public class OrderService {
             case COMPLETED -> {
                 if (currentStatus != OrderStatus.CONFIRMED)
                     throw new AppException(ErrorCode.ORDER_NO_CONFIRMED);
+                order.setTimeCompleted(new Date());
             }
         }
 
         order.setStatus(status);
-        return orderRepository.save(order);
+        Order response = orderRepository.save(order);
+        UserOrder userOrder = userOrderRepository.findByOrderId(response.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NO_EXISTS));
+
+        return OrderUpdateStatusResponse.builder()
+                .orderId(userOrder.getOrderId())
+                .userId(userOrder.getUserId())
+                .status(response.getStatus())
+                .build();
     }
 }

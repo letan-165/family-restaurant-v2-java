@@ -11,6 +11,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 
@@ -22,6 +24,8 @@ public class ProfileService {
     ProfileRepository profileRepository;
     ProfileMapper profileMapper;
 
+
+    @Cacheable(value = {"profile"}, keyGenerator = "simpleKeyGenerator")
     public ProfileResponse get(String userId){
         UserProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(()->new AppException(ErrorCode.PROFILE_NO_EXISTS));
@@ -29,6 +33,8 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
+
+    @CacheEvict(value = {"profile"}, allEntries = true)
     public ProfileResponse update(String userId, ProfileUpdateRequest request){
         UserProfile profile = profileRepository.findByUserId(userId)
                 .orElseThrow(()->new AppException(ErrorCode.PROFILE_NO_EXISTS));

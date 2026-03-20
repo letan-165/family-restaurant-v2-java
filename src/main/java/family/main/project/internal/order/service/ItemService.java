@@ -10,6 +10,9 @@ import family.main.project.internal.order.repository.ItemRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,10 +25,13 @@ public class ItemService {
     ItemRepository itemRepository;
     ItemMapper itemMapper;
 
-    public List<Item> findAll() {
-        return itemRepository.findAll();
+
+    @Cacheable(value = "items", keyGenerator = "pageableKeyGenerator")
+    public List<Item> findAll(Pageable pageable) {
+        return itemRepository.findAll(pageable).getContent();
     }
 
+    @CacheEvict(value = {"items"}, allEntries = true)
     public Item add(ItemSaveRequest request) {
 
         Item item = itemMapper.toItem(request);
@@ -33,6 +39,7 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
+    @CacheEvict(value = {"items"}, allEntries = true)
     public Item update(Long itemId,ItemSaveRequest request) {
 
         Item item = itemRepository.findById(itemId)
@@ -43,6 +50,7 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
+    @CacheEvict(value = {"items"}, allEntries = true)
     public void delete(Long id) {
         if (!itemRepository.existsById(id))
             throw new AppException(ErrorCode.ITEM_NO_EXISTS);

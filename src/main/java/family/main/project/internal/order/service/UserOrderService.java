@@ -15,6 +15,9 @@ import family.main.project.internal.order.repository.UserOrderRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,8 +36,9 @@ public class UserOrderService {
     UserOrderMapper userOrderMapper;
 
 
-    public GetAllMyResponse getAllMy(String userId) {
-        List<UserOrder> userOrders = userOrderRepository.findAllByUserId(userId);
+    @Cacheable(value = "user-order", key = "#userId")
+    public GetAllMyResponse getAllMy(String userId, Pageable pageable) {
+        List<UserOrder> userOrders = userOrderRepository.findAllByUserId(userId,pageable).getContent();
 
         List<Long> orderIds = userOrders.stream()
                 .map(UserOrder::getOrderId)
@@ -65,6 +69,7 @@ public class UserOrderService {
                 .build();
     }
 
+    @CacheEvict(value = "user-order", key = "#result.userId")
     public OrderUpdateInfoResponse updateInfo(Long orderId, OrderUpdateInfoRequest request) {
         UserOrder userOrder = userOrderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NO_EXISTS));

@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class OrderUpdateInfoResponse {
+    String userId;
     Long orderId;
     String receiverName;
     String phone;

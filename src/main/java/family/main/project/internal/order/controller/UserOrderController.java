@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,12 +23,12 @@ public class UserOrderController {
     UserOrderService userOrderService;
 
     @GetMapping("/public")
-    ApiResponse<GetAllMyResponse> getAllMy(){
+    ApiResponse<GetAllMyResponse> getAllMy(Pageable pageable){
         String userId = AuthService.getUserIdFromToken();
 
         return ApiResponse.<GetAllMyResponse>builder()
                 .message("create order")
-                .result(userOrderService.getAllMy(userId))
+                .result(userOrderService.getAllMy(userId,pageable))
                 .build();
     }
 

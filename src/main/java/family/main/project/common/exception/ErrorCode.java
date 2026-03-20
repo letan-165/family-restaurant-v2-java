@@ -36,7 +36,8 @@ public enum ErrorCode {
     ORDER_STATUS_INVALID(3007, "Order status invalid ( PENDING, CANCELLED, CONFIRMED, COMPLETED)", HttpStatus.BAD_REQUEST),
     ORDER_PENDING_NO_UPDATE(3008, "Pending can only be initialized.", HttpStatus.BAD_REQUEST),
     ORDER_NO_PENDING(3009, "Status order not PENDING", HttpStatus.BAD_REQUEST),
-    ORDER_NO_CONFIRMED(3010, "Status order not CONFIRMED", HttpStatus.BAD_REQUEST),
+    ORDER_COMPLETED(30010, "Status order had COMPLETED", HttpStatus.BAD_REQUEST),
+    ORDER_NO_CONFIRMED(3011, "Status order not CONFIRMED", HttpStatus.BAD_REQUEST),
 
     // === VALIDATION (3101 – 3999) ===
     EMAIL_INVALID(3101, "Email invalid", HttpStatus.BAD_REQUEST),

@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,10 +22,10 @@ public class ItemController {
     ItemService itemService;
 
     @GetMapping("/public")
-    ApiResponse<List<Item>> getItems(){
+    ApiResponse<List<Item>> getItems(Pageable pageable){
         return ApiResponse.<List<Item>>builder()
                 .message("get items")
-                .result(itemService.findAll())
+                .result(itemService.findAll(pageable))
                 .build();
     }
 
