@@ -3,8 +3,8 @@ package family.main.project.internal.order.controller;
 import family.main.project.common.model.response.ApiResponse;
 import family.main.project.internal.order.dto.request.OrderCreateRequest;
 import family.main.project.internal.order.dto.request.OrderUpdateStatusRequest;
+import family.main.project.internal.order.dto.response.OrderDetailResponse;
 import family.main.project.internal.order.dto.response.OrderUpdateStatusResponse;
-import family.main.project.internal.order.entity.Order;
 import family.main.project.internal.order.entity.UserOrder;
 import family.main.project.internal.order.service.OrderService;
 import family.main.project.internal.user.service.AuthService;
@@ -37,6 +37,14 @@ public class OrderController {
         return ApiResponse.<OrderUpdateStatusResponse>builder()
                 .message("update status order")
                 .result(orderService.updateStatus(id,request.getStatus()))
+                .build();
+    }
+
+    @GetMapping("/public/{id}/detail")
+    ApiResponse<OrderDetailResponse> updateStatus(@PathVariable Long id){
+        return ApiResponse.<OrderDetailResponse>builder()
+                .message("get detail order")
+                .result(orderService.getDetail(id))
                 .build();
     }
 }

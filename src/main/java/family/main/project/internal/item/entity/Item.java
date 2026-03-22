@@ -1,4 +1,4 @@
-package family.main.project.internal.order.entity;
+package family.main.project.internal.item.entity;
 
 import family.main.project.common.enums.ItemStatus;
 import family.main.project.common.enums.ItemType;

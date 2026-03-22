@@ -3,8 +3,13 @@ package family.main.project.internal.order.service;
 import family.main.project.common.enums.OrderStatus;
 import family.main.project.common.exception.AppException;
 import family.main.project.common.exception.ErrorCode;
+import family.main.project.common.model.response.ItemResponse;
+import family.main.project.internal.item.entity.Item;
+import family.main.project.internal.item.mapper.ItemMapper;
+import family.main.project.internal.item.repository.ItemRepository;
 import family.main.project.internal.order.dto.request.OrderCreateRequest;
 import family.main.project.internal.order.dto.request.OrderItemRequest;
+import family.main.project.internal.order.dto.response.OrderDetailResponse;
 import family.main.project.internal.order.dto.response.OrderUpdateStatusResponse;
 import family.main.project.internal.order.entity.*;
 import family.main.project.internal.order.repository.*;
@@ -15,9 +20,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +30,9 @@ public class OrderService {
 
     OrderRepository orderRepository;
     ItemRepository itemRepository;
-    ItemOrderRepository itemOrderRepository;
+    OrderItemRepository orderItemRepository;
     UserOrderRepository userOrderRepository;
+    ItemMapper itemMapper;
 
     @CacheEvict(value = "user-order", key = "#result.userId")
     @Transactional
@@ -42,27 +47,27 @@ public class OrderService {
         order = orderRepository.save(order);
 
         int total = 0;
-        List<ItemOrder> itemOrders = new ArrayList<>();
+        List<OrderItem> orderItems = new ArrayList<>();
 
         for (OrderItemRequest itemReq : request.getItems()) {
             Item item = itemRepository.findById(itemReq.getItemId())
                     .orElseThrow(() -> new AppException(ErrorCode.ITEM_NO_EXISTS));
 
-            int price = item.getPrice() * itemReq.getQuantity();
+            int price = item.getPrice();
 
-            ItemOrder itemOrder = ItemOrder.builder()
+            OrderItem orderItem = OrderItem.builder()
                     .orderId(order.getId())
                     .itemId(itemReq.getItemId())
                     .quantity(itemReq.getQuantity())
-                    .total(price)
+                    .price(price)
                     .build();
 
-            itemOrders.add(itemOrder);
+            orderItems.add(orderItem);
             total += price;
         }
 
         order.setTotal(total);
-        itemOrderRepository.saveAll(itemOrders);
+        orderItemRepository.saveAll(orderItems);
         orderRepository.save(order);
 
         UserOrder userOrder = UserOrder.builder()
@@ -110,6 +115,40 @@ public class OrderService {
                 .orderId(userOrder.getOrderId())
                 .userId(userOrder.getUserId())
                 .status(response.getStatus())
+                .build();
+    }
+
+    public OrderDetailResponse getDetail(Long orderId) {
+        //GetOrder
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(()-> new AppException(ErrorCode.ORDER_NO_EXISTS));
+
+        //GetInfo
+        UserOrder userOrder = userOrderRepository.findByOrderId(orderId)
+                .orElseThrow(()-> new AppException(ErrorCode.ORDER_NO_EXISTS));
+
+        //GetItem
+        List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
+        Map<Long, OrderItem> orderItemMap = orderItems.stream()
+                .collect(Collectors.toMap(OrderItem::getId, o -> o));
+
+        List<Item> items = itemRepository.findAllById(orderItemMap.keySet());
+
+        //MapItemResponse
+        List<ItemResponse> itemResponses = items.stream().map(item -> {
+           ItemResponse itemResponse = itemMapper.toItemResponse(item);
+           OrderItem orderItem = orderItemMap.get(item.getId());
+
+           itemResponse.setQuantity(orderItem.getQuantity());
+           itemResponse.setPrice(orderItem.getPrice());
+
+           return itemResponse;
+        }).toList();
+
+        return OrderDetailResponse.builder()
+                .user(userOrder)
+                .order(order)
+                .items(itemResponses)
                 .build();
     }
 }

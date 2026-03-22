@@ -1,17 +1,17 @@
 package family.main.project.internal.order.dto.response;
 
+import family.main.project.common.model.response.ItemResponse;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetAllMyResponse {
-    String userId;
-    List<OrderResponse> orders;
+public class OrderDetailResponse extends OrderResponse {
+    List<ItemResponse> items;
 }

@@ -1,0 +1,19 @@
+CREATE TABLE carts (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL UNIQUE,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE cart_item (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    cart_id BIGINT NOT NULL,
+    item_id BIGINT NOT NULL,
+    quantity INT NOT NULL,
+    price INT NOT NULL,
+
+    UNIQUE (cart_id, item_id),
+
+    FOREIGN KEY (cart_id) REFERENCES carts(id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
+);

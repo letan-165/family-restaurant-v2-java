@@ -1,9 +1,9 @@
-package family.main.project.internal.order.controller;
+package family.main.project.internal.item.controller;
 
 import family.main.project.common.model.response.ApiResponse;
-import family.main.project.internal.order.dto.request.ItemSaveRequest;
-import family.main.project.internal.order.entity.Item;
-import family.main.project.internal.order.service.ItemService;
+import family.main.project.internal.item.dto.request.ItemSaveRequest;
+import family.main.project.internal.item.entity.Item;
+import family.main.project.internal.item.service.ItemService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

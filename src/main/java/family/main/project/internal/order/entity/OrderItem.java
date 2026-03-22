@@ -5,13 +5,13 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name = "item_order")
+@Table(name = "order_item")
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemOrder {
+public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -23,5 +23,5 @@ public class ItemOrder {
     Long orderId;
 
     Integer quantity;
-    Integer total;
+    Integer price;
 }

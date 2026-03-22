@@ -1,6 +1,6 @@
-package family.main.project.internal.order.repository;
+package family.main.project.internal.item.repository;
 
-import family.main.project.internal.order.entity.Item;
+import family.main.project.internal.item.entity.Item;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

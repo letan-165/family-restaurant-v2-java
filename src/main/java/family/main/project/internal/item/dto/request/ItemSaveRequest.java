@@ -1,4 +1,4 @@
-package family.main.project.internal.order.dto.request;
+package family.main.project.internal.item.dto.request;
 
 import family.main.project.common.enums.ItemStatus;
 import family.main.project.common.enums.ItemType;

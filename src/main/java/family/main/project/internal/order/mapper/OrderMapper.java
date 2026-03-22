@@ -11,7 +11,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring",nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface OrderMapper {
     OrderUpdateInfoResponse toOrderUpdateInfoResponse(UserOrder userOrder);
-    OrderResponse toOrderResponse(UserOrder userOrder);
 
     void updateOrderFromRequest(@MappingTarget UserOrder userOrder, OrderUpdateInfoRequest request);
 }

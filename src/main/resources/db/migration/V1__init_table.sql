@@ -51,7 +51,7 @@ CREATE TABLE user_order (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
 );
 
-CREATE TABLE item_order (
+CREATE TABLE order_item (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     item_id BIGINT NOT NULL,
     order_id BIGINT NOT NULL,

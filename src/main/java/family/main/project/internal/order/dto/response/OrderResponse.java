@@ -1,22 +1,17 @@
 package family.main.project.internal.order.dto.response;
 
-import family.main.project.internal.order.entity.ItemOrder;
 import family.main.project.internal.order.entity.Order;
+import family.main.project.internal.order.entity.UserOrder;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import lombok.experimental.SuperBuilder;
 
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderResponse {
-    String receiverName;
-    String phone;
-    String address;
+    UserOrder user;
     Order order;
-    List<ItemResponse> items;
 }

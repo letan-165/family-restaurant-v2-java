@@ -1,12 +1,11 @@
-package family.main.project.internal.order.service;
+package family.main.project.internal.item.service;
 
 import family.main.project.common.exception.AppException;
 import family.main.project.common.exception.ErrorCode;
-import family.main.project.internal.order.dto.request.ItemSaveRequest;
-import family.main.project.internal.order.entity.Item;
-import family.main.project.internal.order.entity.ItemOrder;
-import family.main.project.internal.order.mapper.ItemMapper;
-import family.main.project.internal.order.repository.ItemRepository;
+import family.main.project.internal.item.dto.request.ItemSaveRequest;
+import family.main.project.internal.item.entity.Item;
+import family.main.project.internal.item.mapper.ItemMapper;
+import family.main.project.internal.item.repository.ItemRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
