@@ -4,6 +4,10 @@ import family.main.project.common.enums.OrderStatus;
 import family.main.project.common.exception.AppException;
 import family.main.project.common.exception.ErrorCode;
 import family.main.project.common.model.response.ItemResponse;
+import family.main.project.internal.cart.entity.CartItem;
+import family.main.project.internal.cart.entity.UserCart;
+import family.main.project.internal.cart.repository.CartItemRepository;
+import family.main.project.internal.cart.repository.CartRepository;
 import family.main.project.internal.item.entity.Item;
 import family.main.project.internal.item.mapper.ItemMapper;
 import family.main.project.internal.item.repository.ItemRepository;
@@ -13,6 +17,7 @@ import family.main.project.internal.order.dto.response.OrderDetailResponse;
 import family.main.project.internal.order.dto.response.OrderUpdateStatusResponse;
 import family.main.project.internal.order.entity.*;
 import family.main.project.internal.order.repository.*;
+import family.main.project.internal.user.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,47 +34,89 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     OrderRepository orderRepository;
+    UserRepository userRepository;
     ItemRepository itemRepository;
     OrderItemRepository orderItemRepository;
     UserOrderRepository userOrderRepository;
+    CartItemRepository cartItemRepository;
+    CartRepository cartRepository;
+
     ItemMapper itemMapper;
 
     @CacheEvict(value = "user-order", key = "#result.userId")
     @Transactional
-    public UserOrder createOrder(String userId, OrderCreateRequest request) {
+    public UserOrder createOrder(String userId, OrderCreateRequest request, boolean fromCart) {
+        //Request quá dư để chuyển từ cart sang order
+
+        //Check user
+        if (!userRepository.existsById(userId))
+            throw new AppException(ErrorCode.USER_NO_EXISTS);
+
+        List<Long> itemIds = request.getItems().stream()
+                .map(OrderItemRequest::getItemId)
+                .toList();
+
+        //FromCart
+        if (fromCart) {
+            UserCart cart = cartRepository.findByUserId(userId)
+                    .orElseThrow(() -> new AppException(ErrorCode.CART_NO_EXISTS));
+            Long cartId = cart.getId();
+            if(cartItemRepository.countByCartIdAndItemIdIn(cartId, itemIds)!=itemIds.size())
+                throw new AppException(ErrorCode.ITEM_CART_NO_EXISTS);
+        }
+
+        //Set order
         Order order = Order.builder()
                 .status(OrderStatus.PENDING)
                 .note(request.getNote())
                 .timeBooking(new Date())
                 .total(0)
                 .build();
-
+        //Save order get OrderId
         order = orderRepository.save(order);
 
+        //Init total $ item
         int total = 0;
         List<OrderItem> orderItems = new ArrayList<>();
+        List<Item> items = itemRepository.findAllById(itemIds);
+        Map<Long, Item> itemMap = items.stream().collect(Collectors.toMap(Item::getId,o->o));
 
         for (OrderItemRequest itemReq : request.getItems()) {
-            Item item = itemRepository.findById(itemReq.getItemId())
-                    .orElseThrow(() -> new AppException(ErrorCode.ITEM_NO_EXISTS));
+
+            Long itemId = itemReq.getItemId();
+            Item item = itemMap.get(itemId);
+
+            if (item==null)
+                    throw new AppException(ErrorCode.ITEM_NO_EXISTS);
 
             int price = item.getPrice();
+            item.setSold(item.getSold() + itemReq.getQuantity());
 
             OrderItem orderItem = OrderItem.builder()
                     .orderId(order.getId())
-                    .itemId(itemReq.getItemId())
+                    .itemId(itemId)
                     .quantity(itemReq.getQuantity())
                     .price(price)
                     .build();
 
             orderItems.add(orderItem);
-            total += price;
+            itemMap.put(itemId,item);
+            total += price * itemReq.getQuantity();
         }
 
         order.setTotal(total);
-        orderItemRepository.saveAll(orderItems);
-        orderRepository.save(order);
 
+        //FromCart
+        if (fromCart)
+            cartItemRepository.deleteAllByItemIdIn(itemIds);
+
+        //Save item-order
+        orderItemRepository.saveAll(orderItems);
+
+        //Save item
+        itemRepository.saveAll(itemMap.values());
+
+        //Save user-order
         UserOrder userOrder = UserOrder.builder()
                 .userId(userId)
                 .orderId(order.getId())

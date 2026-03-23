@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     List<CartItem> findByCartId(Long cartId, Pageable pageable);
+    long countByCartIdAndItemIdIn(Long cartId, List<Long> itemIds);
+    void deleteAllByItemIdIn(List<Long> itemIds);
 }

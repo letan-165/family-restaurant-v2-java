@@ -28,9 +28,20 @@ public class OrderController {
 
         return ApiResponse.<UserOrder>builder()
                 .message("create order")
-                .result(orderService.createOrder(userId ,request))
+                .result(orderService.createOrder(userId ,request, false))
                 .build();
     }
+
+    @PostMapping("/public/cart")
+    ApiResponse<UserOrder> createOrderFromCart(@RequestBody OrderCreateRequest request){
+        String userId = AuthService.getUserIdFromToken();
+
+        return ApiResponse.<UserOrder>builder()
+                .message("create order from cart")
+                .result(orderService.createOrder(userId ,request, true))
+                .build();
+    }
+
 
     @PutMapping("/public/{id}/status")
     ApiResponse<OrderUpdateStatusResponse> updateStatus(@PathVariable Long id, @RequestBody OrderUpdateStatusRequest request){
