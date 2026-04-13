@@ -13,7 +13,4 @@ public class UserSignUpRequest {
     String password;
     String email;
     String fullName;
-    String phone;
-    String avatar;
-    String address;
 }

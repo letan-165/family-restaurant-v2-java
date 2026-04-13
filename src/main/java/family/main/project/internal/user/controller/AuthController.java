@@ -34,7 +34,7 @@ public class AuthController {
     @PostMapping("/public/login")
     ApiResponse<AuthResponse> login(@RequestBody LoginRequest request) throws JOSEException {
         return ApiResponse.<AuthResponse>builder()
-                .message("login: "+request.getUsername())
+                .message("login: " + request.getUsername())
                 .result(authService.login(request))
                 .build();
     }

@@ -76,8 +76,10 @@ public class AuthService {
                 .build();
         User resUser = userRepository.save(user);
 
-        UserProfile profile = profileMapper.toUserProfile(request);
-        profile.setUserId(resUser.getId());
+        UserProfile profile = UserProfile.builder()
+                .userId(resUser.getId())
+                .fullName(request.getFullName())
+                .build();
         UserProfile respProfile = profileRepository.save(profile);
 
         cartRepository.save(UserCart.builder()

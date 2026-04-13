@@ -10,7 +10,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring",nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProfileMapper {
-    UserProfile toUserProfile(UserSignUpRequest request);
     ProfileResponse toProfileResponse(UserProfile profile);
     void updateToProfile(ProfileUpdateRequest request,@MappingTarget UserProfile profile);
 }
