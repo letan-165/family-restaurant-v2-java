@@ -60,7 +60,7 @@ public class GlobalExceptionHandling {
                 };
             }
         }
-        return toResponseEntity(ErrorCode.ENUM_INVALID);
+        return toResponseEntity(ErrorCode.OTHER_ERROR);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

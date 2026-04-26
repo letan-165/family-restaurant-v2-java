@@ -40,7 +40,6 @@ public class ProfileService {
                 .orElseThrow(()->new AppException(ErrorCode.PROFILE_NO_EXISTS));
 
         profileMapper.updateToProfile(request, profile);
-
-        return profileMapper.toProfileResponse(profile);
+        return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
 }

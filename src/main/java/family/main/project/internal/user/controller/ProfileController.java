@@ -31,7 +31,7 @@ public class ProfileController {
     }
 
     @PutMapping("/public")
-    ApiResponse<ProfileResponse> updateProfile(ProfileUpdateRequest request){
+    ApiResponse<ProfileResponse> updateProfile(@RequestBody ProfileUpdateRequest request){
         String userId = AuthService.getUserIdFromToken();
 
         return ApiResponse.<ProfileResponse>builder()
