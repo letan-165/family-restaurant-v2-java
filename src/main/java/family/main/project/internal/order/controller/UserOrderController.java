@@ -1,5 +1,6 @@
 package family.main.project.internal.order.controller;
 
+import family.main.project.common.enums.OrderStatus;
 import family.main.project.common.model.response.ApiResponse;
 import family.main.project.internal.order.dto.request.OrderCreateRequest;
 import family.main.project.internal.order.dto.request.OrderUpdateInfoRequest;
@@ -23,12 +24,12 @@ public class UserOrderController {
     UserOrderService userOrderService;
 
     @GetMapping("/public")
-    ApiResponse<GetAllMyResponse> getAllMy(Pageable pageable){
+    ApiResponse<GetAllMyResponse> getAllMy(@RequestParam OrderStatus status, Pageable pageable){
         String userId = AuthService.getUserIdFromToken();
 
         return ApiResponse.<GetAllMyResponse>builder()
-                .message("create order")
-                .result(userOrderService.getAllMy(userId,pageable))
+                .message("get all my order")
+                .result(userOrderService.getAllMy(userId,status,pageable))
                 .build();
     }
 

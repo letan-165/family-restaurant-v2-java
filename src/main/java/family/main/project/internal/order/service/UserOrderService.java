@@ -1,5 +1,6 @@
 package family.main.project.internal.order.service;
 
+import family.main.project.common.enums.OrderStatus;
 import family.main.project.common.exception.AppException;
 import family.main.project.common.exception.ErrorCode;
 import family.main.project.internal.order.dto.request.OrderUpdateInfoRequest;
@@ -17,6 +18,7 @@ import family.main.project.internal.order.repository.UserOrderRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class UserOrderService {
 
     UserOrderRepository userOrderRepository;
@@ -39,10 +42,10 @@ public class UserOrderService {
     ItemMapper itemMapper;
 
 
-    @Cacheable(value = "user-order", key = "#userId")
-    public GetAllMyResponse getAllMy(String userId, Pageable pageable) {
+//    @Cacheable(value = "user-order", key = "#userId")
+    public GetAllMyResponse getAllMy(String userId, OrderStatus status, Pageable pageable) {
         //GetInfo
-        List<UserOrder> userOrders = userOrderRepository.findAllByUserId(userId,pageable).getContent();
+        List<UserOrder> userOrders = userOrderRepository.findByUserIdAndOrderStatus(userId,status.name(),pageable).getContent();
 
         //GetOrders
         List<Long> orderIds = userOrders.stream()
