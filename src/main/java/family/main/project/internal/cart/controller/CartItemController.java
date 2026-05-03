@@ -44,11 +44,11 @@ public class CartItemController {
                 .build();
     }
 
-    @PutMapping("/public/{id}")
-    ApiResponse<CartItem> updateQuantity(@PathVariable Long id, @RequestBody UpdateQuantityRequest request){
+    @PutMapping("/public/{itemId}")
+    ApiResponse<CartItem> updateQuantity(@PathVariable Long itemId, @RequestBody UpdateQuantityRequest request){
         return ApiResponse.<CartItem>builder()
                 .message("update quantity item cart")
-                .result(cartItemService.updateQuantity(id ,request))
+                .result(cartItemService.updateQuantity(itemId ,request))
                 .build();
     }
 

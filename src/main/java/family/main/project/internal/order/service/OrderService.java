@@ -26,6 +26,7 @@ import family.main.project.internal.user.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -142,7 +144,9 @@ public class OrderService {
 
         boolean allItemOnCart = cartItems.stream()
                 .allMatch(item -> item.getCartId().equals(cartId));
-
+        log.info("allItemOnCart{}",String.valueOf(allItemOnCart));
+        log.info("cartItemIds{}",cartItemIds.toString());
+        log.info("cartItems{}",cartItems.toString());
         if(cartItems.size()!=cartItemIds.size() || !allItemOnCart)
             throw new AppException(ErrorCode.ITEM_CART_NO_EXISTS);
 

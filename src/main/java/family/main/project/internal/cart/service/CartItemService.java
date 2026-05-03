@@ -17,6 +17,7 @@ import family.main.project.internal.item.repository.ItemRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class CartItemService {
 
     CartItemRepository cartItemRepository;
@@ -42,27 +44,30 @@ public class CartItemService {
 
         Long cartId = userCart.getId();
 
-        List<CartItem> cartItems = cartItemRepository.findByCartId(cartId,pageable);
+        List<CartItem> cartItems = cartItemRepository.findByCartId(cartId,pageable).getContent();
 
         Map<Long, CartItem> cartItemMap = cartItems.stream()
-                .collect(Collectors.toMap(CartItem::getId, o -> o));
+                .collect(Collectors.toMap(CartItem::getItemId, o -> o));
 
         List<Item> items = itemRepository.findAllById(cartItemMap.keySet());
 
-        List<ItemObjResponse> itemObjRespons = items.stream().map(item -> {
+        List<ItemObjResponse> itemObjResponses = items.stream().map(item -> {
             ItemObjResponse itemObjResponse = itemMapper.toItemResponse(item);
             CartItem cartItem = cartItemMap.get(item.getId());
 
-            itemObjResponse.setQuantity(cartItem.getQuantity());
-            itemObjResponse.setObjId(cartItem.getId());
+            itemObjResponse = itemObjResponse.toBuilder()
+                    .id(cartItem.getId())
+                    .quantity(cartItem.getQuantity())
+                    .objId(cartItem.getCartId())
+                    .build();
+
 
             return itemObjResponse;
         }).toList();
 
-
         return GetAllMyCartResponse.builder()
                 .cartId(cartId)
-                .items(itemObjRespons)
+                .items(itemObjResponses)
                 .build();
     }
 
@@ -78,8 +83,8 @@ public class CartItemService {
         return cartItemRepository.save(cartItem);
     }
 
-    public CartItem updateQuantity(Long id, UpdateQuantityRequest request){
-        CartItem cartItem = cartItemRepository.findById(id)
+    public CartItem updateQuantity(Long itemId, UpdateQuantityRequest request){
+        CartItem cartItem = cartItemRepository.findByItemId(itemId)
                 .orElseThrow(()-> new AppException(ErrorCode.ITEM_CART_NO_EXISTS));
         cartItem.setQuantity(request.getQuantity());
         return cartItemRepository.save(cartItem);
